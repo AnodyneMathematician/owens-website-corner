@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head> <title> French Grammatical Gender Blog </title> </head>
+
+<header>
+    <a href="index.html">Home Page</a>
+</header>
+<body>
+<h2> An Analysis of French Grammatical Gender </h2>
+<p>
+<b>Backstory/Goal:</b> <br>
+Some sources and people I have met like to describe grammatical gender as “random” or “unpredictable.” 
+While it is true that in certain languages it is hard to tease out patterns and rules for grammatical gender, 
+I want to show that in French it isn’t so bad, and that with just a few rules we can correctly 
+predict the grammatical gender of a significant majority of nouns.
+<br>
+<br>
+However, when I looked at reference grammars, research papers, and other resources, the vast majority 
+presented French grammatical gender rules in a confusing and haphazard way. These explanations 
+often felt more like trivia than something systematic, or like linguistic babble that an ordinary 
+learner would struggle to understand, let alone remember.
+<br>
+<br>
+As such, my main goal is to provide a small set of rules that are easy to remember and effective in determining
+French grammatical gender, so that a student with little background in linguistics can have a much less painful experience 
+learning it.
+<br>
+<br>
+To do this, I conducted my own data analysis of French nouns.
+
+</p>
+
+<p>
+<b>Methods (and critiques):</b> <br>
+For most of this project, I used a quick and somewhat informal method to obtain results.
+I found a list (1) of approximately 2000 supposedly frequent French nouns and used this as my initial dataset.
+<br>
+<br>
+I then reviewed the entries to get a sense of the data quality. During this stage, 
+I also removed a small subset of plural entries.
+<br>
+<br>
+Finally, to validate my findings, I used the Python package pylexique, 
+based on the larger Le Lexique (4) database, and computed accuracy on small batches (fewer than 30 items). 
+This allowed me to check whether the ~87% accuracy I observed was realistic, and whether I had made any major errors.
+<br>
+<br>
+Because of this, I want to note the following regarding the data:
+<br>
+<br>
+(A) The data was only of moderate quality. The French dataset was much better than those provided for other languages on the 
+same website; however, I was unable to confirm how “frequent” words were selected. 
+Nonetheless, a quick inspection suggested that the words were sufficiently common, 
+which was adequate for my goal of maximising accuracy in everyday conversation rather than in highly technical or archaic contexts.
+ The data source appears, based on my observation, to consist of common English nouns that were translated into French. 
+ In some cases, multiple English nouns mapped to the same French word (e.g. beat, rhythm → le rythme).
+<br>
+<br>
+(B) I made many decisions regarding data selection and validation in order to complete the project quickly. 
+Ideally, I would prefer a more rigorous and airtight approach to accuracy. I may revisit this in the future if 
+there is interest or if I have more time.
+<br>
+<br>
+(C) Due to concerns about data validity, the true accuracy for most real-world use cases is likely slightly lower than reported.
+ However, my validation suggests that it is not drastically lower than the stated figures.
+
+
+</p>
+
+<p>
+<b>Exploration of data:</b> <br>
+One of the most useful resources for me, when exploring the data was this blog post by Alexis Huet (2).
+<br> <br>
+With a few additions and modifications, 
+here is my reproduction of a bar chart showing the final letter of French nouns and the frequency of each gender 
+(blue bars on the left indicate masculine nouns, and red bars on the right indicate feminine nouns):
+
+
+</p>
+
+<img src="last_letter_barplot_further_compressed_cropped.png" width="954" height="438" alt="Feminine vs Masculine breakdown for last letter">
+
+
+<p>
+We can notice several interesting patterns from this plot. However, one particularly notable observation is that nearly all feminine nouns are concentrated among words that end in -e and -n.
+<br><br>
+This leads us to the following rule:
+<br><br>
+<b>The Base/Simple Rule (77% accuracy):</b> <br>
+Ends in -e or -n → Feminine (F) <br>
+Ends in any other letter → Masculine (M)
+<br><br>
+Amazingly, if you learned only this rule to predict gender in French, you would be correct nearly four-fifths of the time!
+<br><br>
+Especially after looking at grammatical gender in other languages - this is somewhat mind-boggling tol me :). 
+Thankfully, this means that for the rest of our analysis, we only need to gain a few more percentage points in order to develop a system that is highly accurate at determining French grammatical gender.
+<br><br>
+Looking more closely at the bar chart, I wondered whether there might be a way to isolate or separate masculine nouns from feminine ones among words ending in -e, -n, or -r. If so, there would be very little uncertainty remaining, and our task would essentially be complete.
+<br><br>
+So, I created bar charts that only included words ending in -n, -e, or -r, and then examined the masculine/feminine breakdown based on the second-to-last letter.
+<br>
+</p>
+<p>
+From the first of these bar charts, I developed the following rule for nouns ending in -n:
+<br><br>
+<b>-on/-n rule (+4% → 81%):</b> <br>
+Does the noun end in -on? <br>
+
+No → Masculine <br>
+Yes → <br>
+-Is it long (≥6 letters)? → Feminine <br>
+-Is it short? → Probably masculine
+<br><br>
+Among words ending in -e, -n, and -r, those ending in -n show by far the most regular pattern. As such, we are able to improve our accuracy for -n words from 60% to 89%.    
+<br>
+
+</p>
+
+
+<p>
+The -r rule and comments on other non-e words (+ &lt;1%)
+<br><br>
+Because such a large proportion of -r words are masculine, we are only able to improve prediction slightly. As a result, this rule is more useful for identifying endings that are reliably masculine rather than for strong predictive power.
+<br><br>
+For nouns ending in -r:
+<br>
+<b>-r rule (+ &lt;1%):</b> <br>
+Does it end in -eur?
+<br>
+No → Masculine <br>
+Yes → <br>
+-Is it long (≥6 letters)? → Probably masculine <br>
+-Is it short? → Possibly feminine <br>
+<br>
+(Prediction heuristic: short + ends in -eur → guess feminine; otherwise masculine)
+<br>
+</p>
+
+<p>
+<b>Notes on -o,-a,-x:</b>
+<br>
+Words ending in -o: <br>
+Check whether the word is a nickname or abbreviation, and then infer the gender from the full form (e.g. moto → motocyclette).<br>
+(Common exception: la vidéo) 
+<br><br>
+-a words:
+Although more data is needed, feminine words here seem to include some holdovers from Latin (e.g. la villa) and loanwords for food or drink (e.g. la vodka, la pizza).
+<br><br>
+-x words:
+Feminine words ending in -x often end in -ix, but they are still in the minority. As such, it is generally easier to guess masculine for words ending in -x.
+<br>
+</p>
+
+<p>
+Before moving on to the main -e rules, it is worth mentioning a regular pattern for words ending in -é:
+<br><br>
+<b>-é rule (+2% → 83%):</b>
+<br>
+Ends in -té?
+<br>
+Yes → Feminine (F) <br>
+No → Masculine (M)
+
+</p>
+
+<p>
+<b>e rules:</b>
+<br>
+Applying the same approach as before, when we examine the second-to-last letter of words ending in -e, we find that there is no single clean pattern.
+<br><br>
+Nonetheless, simply guessing feminine already gives about 70% accuracy for -e words. If we can increase this to 80% or higher, we can build a highly effective system for predicting the gender of almost any French noun.
+<br><br>
+When analysing the second-to-last letter, we observe a range of two-letter endings:
+<br><br>
+Common -e endings and percentage feminine:
+<br><br>
+-se (97%) <br>
+-ie (93%) <br>
+-ce (84%) <br>
+-te (79%) <br>
+-ne (71%) <br>
+-re (59%) <br>
+-le (58%) <br>
+-me (47%) <br>
+-ge (25%) <br> <br>
+
+(Note: for other endings such as -be or -pe, nouns are also often likely to be feminine.)
+<br> <br>
+From this, we can identify endings that are strongly associated with feminine gender: <br>
+-se, -ce, -ie, -te
+<br> <br>
+A mnemonic I use for remmembering what second letter ending's of e-words tend to be feminine is: <b>SCIT</b>ECH.
+<br><br>
+However, endings such as -ge, -le, -me, -ne, -re are more complex. To refine predictions, we can examine the third and fourth letters.
+<br><br>
+Refined rules:
+<br><br>
+<b>-ge rule (+2%) (83% → 85%):</b>
+<br>
+-age → Masculine  <br>
+-rge → Feminine <br>
+Other → Masculine <br>
+<br>
+(Assume masculine unless -rge) <br>
+Notable exceptions: la plage, l’image
+<br><br>
+<b>-re rule (+1%) (85% → 86%):</b><br>
+-ure → Feminine <br>
+-ère → Probably feminine <br>
+-tre → Likely masculine <br>
+If -ire: <br>
+-oire → Likely masculine <br>
+Otherwise → Likely feminine <br>
+<br>
+Others -re endings → ~55% feminine
+<br>
+(Assume feminine unless -tre or -oire)
+<br><br>
+Note: If you see a doubled consonant before -e (e.g. -tte, -lle), there is about a 90% chance the word is feminine.
+<br><br>
+<b>-le rule (+1%) (86% → 87%):</b>
+<br>
+-lle → Feminine<br>
+-ule → Feminine<br>
+-ile → Possibly feminine <br>
+Other → Likely masculine<br>
+<br>
+(If -lle, -ule, or -ile → feminine; otherwise masculine)
+<br><br>
+<b>Minor e rules:</b>
+<br>
+<b>-me rule (+ &lt;1%):</b>
+<br>
+Short (&lt;6 letters) → Probably feminine <br>
+Long (&gt;6 letters) → Likely masculine <br>
+6 letters → roughly equal; default to feminine <br>
+<br>
+<b>-de rule (+ &lt;1%):</b> <br>
+-ide → Masculine <br>
+Otherwise → Feminine <br>
+<br>
+<b>-ue rule (+ &lt;1%):</b>
+<br>
+Not -que → Feminine (≈95%)<br>
+If -que:<br>
+-ique → Likely feminine<br>
+Otherwise → Possibly masculine<br>
+(Assume feminine unless -que but not -ique)<br>
+</p>
+<p>
+If you’ve managed to learn all that, congratulations! <br>
+You should now be able to predict the gender of French nouns with around 85% accuracy (and 88% within this dataset).<br>
+<br>
+I could continue adding more rules, but I don’t believe my current dataset has sufficient resolution to support further reliable conclusions. 
+That said, if you discover additional useful rules from a more detailed dataset, feel free to share them!
+
+</p>
+
+<!---<img src="HTML/alphabet_plot_finalized_28_12_compressed.png" alt="Table breakdown masculine vs feminine last letter">--->
+<img src="Noun Endings Frequency Picture 1 26 12 25.png" width="999" height="553" alt="Word ending breakdown e-words">
+
+</body>
+
+<footer>
+        <p>
+            &copy; Owen Emery (2026)
+        </p>
+    </footer>
+</html>
